@@ -103,29 +103,31 @@ export default {
       this.$refs.sections.removeEventListener("mousedown", this.userClickListener);
     },
     userClickListener(e) {
-      const sectionId = +e.target.dataset.section;
-      this.currentUserSections.push(sectionId);
-      this.playSound(sectionId);
-      
-      // проверяем, правильно ли юзер воспроизводит текущую последовательность секций
-      const userIsRight = this.currentUserSections.every((section, index) => section === this.currentSections[index]);
-      
-      if (userIsRight) {
-        if (this.currentSections.length === this.currentUserSections.length) {
+      if (e.currentTarget !== e.target) {
+        const sectionId = +e.target.dataset.section;
+        this.currentUserSections.push(sectionId);
+        this.playSound(sectionId);
+
+        // проверяем, правильно ли юзер воспроизводит текущую последовательность секций
+        const userIsRight = this.currentUserSections.every((section, index) => section === this.currentSections[index]);
+
+        if (userIsRight) {
+          if (this.currentSections.length === this.currentUserSections.length) {
+            this.removeSectionsListener();
+            this.currentUserSections = [];
+            this.score++;
+            this.playNextLevel();
+          }
+        } else {
           this.removeSectionsListener();
+          this.finalScore = this.score;
+          this.score = 0;
+          this.currentSections = [];
           this.currentUserSections = [];
-          this.score++;
-          this.playNextLevel();
+          this.isGameOver = true;
+          this.startButtonDisabled = false;
+          this.difficultySelectDisabled = false;
         }
-      } else {
-        this.removeSectionsListener();
-        this.finalScore = this.score;
-        this.score = 0;
-        this.currentSections = [];
-        this.currentUserSections = [];
-        this.isGameOver = true;
-        this.startButtonDisabled = false;
-        this.difficultySelectDisabled = false;
       }
     },
     playSound(sectionId) {
